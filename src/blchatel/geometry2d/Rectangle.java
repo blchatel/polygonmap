@@ -77,8 +77,8 @@ public final class Rectangle extends Shape{
     /// Rectangle extends Shape
 
     @Override
-    public boolean contains(double x, double y) {
-        return x >= this.x && x <= this.x+w && y >= this.y && y <= this.y+h;
+    public boolean contains(Vector v) {
+        return v.x >= this.x && v.x <= this.x+w && v.y >= this.y && v.y <= this.y+h;
     }
 
     @Override
@@ -92,9 +92,9 @@ public final class Rectangle extends Shape{
     }
 
     @Override
-    public Point sample(Random random) {
+    public Vector sample(Random random) {
         double x = random.nextDouble()*w;
         double y = random.nextDouble()*h;
-        return new Point(x, y);
+        return new Vector(x, y);
     }
 }

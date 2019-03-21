@@ -6,13 +6,14 @@ import blchatel.random.Random;
 
 public abstract class Shape {
 
+    private static final Random RANDOM = new Random();
+
     /**
-     * Indicate if the given point (x, y) is contained into this shape
-     * @param x (double): x-coordinates of the point to test
-     * @param y (double): y-coordinates of the point to test
-     * @return (boolean): true if the point is contained into this shape (boundary included)
+     * Indicate if the given vector (x, y) is contained into this shape
+     * @param v (Vector): vector to test
+     * @return (boolean): true if the vector is contained into this shape (boundary included)
      */
-    public abstract boolean contains(double x, double y);
+    public abstract boolean contains(Vector v);
 
 
     /**
@@ -30,11 +31,18 @@ public abstract class Shape {
 
 
     /**
-     * Sample (assume uniformly) a point into the shape (border included)
+     * Sample (assume uniformly) a vector into the shape (border included)
      * @param random (Random): the random generator
-     * @return (Point): the sample
+     * @return (Vector): the sample
      */
-    public abstract Point sample(Random random);
+    public abstract Vector sample(Random random);
 
+    /**
+     * Sample uniform vector inside shape, including border.
+     * @return (Vector): a uniform sample, not null
+     */
+    public Vector sample() {
+        return sample(RANDOM);
+    }
 
 }

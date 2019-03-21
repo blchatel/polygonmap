@@ -6,16 +6,16 @@ import blchatel.random.Random;
 
 /**
  * Disk definition and implementation with double precision
- * A disk is defined by its center point and its radius
+ * A disk is defined by its center vector and its radius
  */
 public final class Disk extends Circle{
 
     /**
      * Default Disk constructor
-     * @param center (Point): center of the Disk to create
+     * @param center (Vector): center of the Disk to create
      * @param radius (double): radius of the Disk to create
      */
-    public Disk(Point center, double radius){
+    public Disk(Vector center, double radius){
         super(center, radius);
     }
 
@@ -38,16 +38,16 @@ public final class Disk extends Circle{
     }
 
     /**
-     * Compute the (x, y) coordinates of the disk point for radius r and angle phi
+     * Compute the (x, y) coordinates of the disk Vector for radius r and angle phi
      * Assume origin of phi is the x-axis parallel passing by Disk center (from polar coordinate)
-     * @param r (double): radius of the point  (0 <= r < R)
-     * @param phi (double): angle of the point in radian (0 <= phi < 2pi)
-     * @return (Point): the point on the Disk for radius r and phi angle
+     * @param r (double): radius of the Vector  (0 <= r < R)
+     * @param phi (double): angle of the Vector in radian (0 <= phi < 2pi)
+     * @return (Vector): the Vector on the Disk for radius r and phi angle
      */
-    public Point getPoint(double r, double phi){
+    public Vector getPoint(double r, double phi){
         if(r > this.r)
             throw new IllegalArgumentException("r is bigger than Disk radius");
-        return new Point(c.x + r*Math.cos(phi), c.y + r*Math.sin(phi));
+        return new Vector(c.x + r*Math.cos(phi), c.y + r*Math.sin(phi));
     }
 
 
@@ -60,12 +60,12 @@ public final class Disk extends Circle{
     /// Disk extends Circle
 
     @Override
-    public boolean contains(double x, double y){
-        return c.sqrDist(x, y) <= r*r;
+    public boolean contains(Vector v){
+        return c.subtract(v).getSqrLength() <= r*r;
     }
 
     @Override
-    public Point sample(Random random) {
+    public Vector sample(Random random) {
 
         double e1 = random.nextDouble();
         double e2 = random.nextDouble();
