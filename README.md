@@ -6,7 +6,7 @@ This is a personal approach of the project presented here
 <http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/>
 
 ## Steps
-### Voronoi Diagram and Fortune Algorithm
+### Step1 : Voronoi Diagram and Fortune Algorithm
 
 
 ## References
