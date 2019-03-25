@@ -43,7 +43,7 @@ public class PolygonMap {
         for(int i = 0; i < samples; i++){
             Vector v = rec.sample(r);
             points.add(v);
-            window.registerShape(new SwingShape(v.toPath(), Color.BLACK));
+            //window.registerShape(new SwingShape(v.toPath(), Color.BLACK));
         }
 
         Voronoi diagram = new Voronoi(points, rec);

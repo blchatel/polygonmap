@@ -49,7 +49,7 @@ public class SwingWindow {
 
     /** Build window content (Canvas + Options)*/
     private Component buildContent(){
-        JPanel component = new JPanel();
+        final JPanel component = new JPanel();
         component.setLayout(new BorderLayout());
 
         canvas = new SwingCanvas();
@@ -58,11 +58,11 @@ public class SwingWindow {
         optionPanel = new SwingOptionPanel();
         component.add(optionPanel, BorderLayout.EAST);
 
-        component.addComponentListener(new ComponentAdapter(){
+        SwingUtilities.invokeLater(() -> component.addComponentListener(new ComponentAdapter(){
             public void componentResized(ComponentEvent evt) {
                 refresh();
             }
-        });
+        }));
 
         return component;
     }
