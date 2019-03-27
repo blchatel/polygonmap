@@ -21,7 +21,6 @@ public class Voronoi {
 	/// Box of voronoi
 	private final Rectangle box;
 	/// Edges of the diagram
-	private Map<Vector, VoronoiCell> cells;
 	private List<Edge> edges;
 	/// Priority queue representing the sweep line
 	private PriorityQueue<Event> events;
@@ -44,8 +43,11 @@ public class Voronoi {
 
     /** Event comparator sorting event by decreasing y*/
 	private static final Comparator<Event> priority = (event1, event2) -> {
-        if (event1.pi.y == event2.pi.y) return Double.compare(event1.pi.x, event2.pi.x);
-        else if (event1.pi.y > event2.pi.y) return -1;
+	    Vector p1 = event1.getP();
+	    Vector p2 = event2.getP();
+
+	    if (p1.y == p2.y) return Double.compare(p1.x, p2.x);
+        else if (p1.y > p2.y) return -1;
         return 1;
     };
 
@@ -59,10 +61,8 @@ public class Voronoi {
         // Initialize the events queue with all site events, initialize an empty Beach Line status
         // structure and an empty doubly-connected edges list.
         events = new PriorityQueue<>(priority);
-        cells = new HashMap<>(sites.size());
         for(Vector p : sites) {
-            events.add(new Event(p, Event.Type.SITE_EVENT));
-            cells.put(p, new VoronoiCell(p));
+            events.add(new VoronoiCell(p));
         }
         beachLine = null;
         edges = new ArrayList<>();
@@ -70,11 +70,11 @@ public class Voronoi {
         while(!events.isEmpty()) {
             // Remove the event with largest y-coordinate from events.
             Event e = events.remove();
-            sweepY = e.pi.y;
-            if(e.type == Event.Type.SITE_EVENT) {
-                handleSite(cells.get(e.pi));
+            sweepY = e.getP().y;
+            if(e instanceof VoronoiCell) {
+                handleSite((VoronoiCell) e);
             }else{
-                handleCircle(e.arc, e.pi);
+                handleCircle((CircleEvent)e);
             }
         }
 
@@ -104,7 +104,7 @@ public class Voronoi {
         // Otherwise, continue
 
         // Search in the beach line for the arc alpha vertically above pi.
-        BeachLine.Arc alpha = beachLine.getArcAbove(cell.site);
+        BeachLine.Arc alpha = beachLine.getArcAbove(cell.getP());
 
         // If the leaf representing alpha has a pointer to a circle event in events, then this circle event is a
         // false alarm and it must be deleted from events.
@@ -132,10 +132,12 @@ public class Voronoi {
 
     /**
      * Handle circle event: leaf gamma and corresponding arc (alpha) is drop out
-     * @param gamma (Arc): arc leaf that drop out
-     * @param cT (Vector): circle event point (bottom point of the circle)
+     * @param event (CircleEvent): the circle event
      */
-	private void handleCircle(BeachLine.Arc gamma, Vector cT) {
+	private void handleCircle(CircleEvent event) {
+
+        BeachLine.Arc gamma = event.arc;
+        Vector cT = event.getP();
 
         // - Delete all circle events involving alpha from events;
         //   these can be found using the pointers from the predecessor and the successor of gama in the beach line.
@@ -155,7 +157,7 @@ public class Voronoi {
         }
 
         // - Add the center of the circle causing the event as a vertex record to the doubly-connected edge list.
-        Vector center = new Vector(cT.x, beachLine.getY(gamma.cell.site, cT.x, sweepY));
+        Vector center = new Vector(cT.x, beachLine.getY(gamma.cell.getP(), cT.x, sweepY));
         Edge el = boxedEdge(xl.halfEdge.head, center);
         Edge er = boxedEdge(xr.halfEdge.head, center);
 
@@ -169,7 +171,7 @@ public class Voronoi {
         //   When gamma is removed from the beach line, one break point (the lowest in the tree) is also removed
         //   and we reuse the other (the highest) as new break point
         BeachLine.BreakPoint higher = beachLine.determineHigher(gamma, xl, xr);
-        Vector predSucc = successor.cell.site.subtract(predecessor.cell.site);
+        Vector predSucc = successor.cell.getP().subtract(predecessor.cell.getP());
         HalfEdge edge = new HalfEdge(center, new Vector(predSucc.y, -predSucc.x));
         higher.set(edge, predecessor.cell, successor.cell);
 
@@ -208,8 +210,9 @@ public class Voronoi {
 		// If one arc is null or if left and right are from same site, circle event cannot exists
 		if(a == null || c == null || a.cell.equals(c.cell)) return;
 
+		Vector bP = b.cell.getP();
         // The same if the point are not ccw
-		if(ccw(a.cell.site, b.cell.site, c.cell.site) > 0) return;
+		if(ccw(a.cell.getP(), bP, c.cell.getP()) > 0) return;
 		
 		// halfEdges will intersect to form a vertex for a circle event
 		Vector[] intersections = lbp.halfEdge.intersectWith(rbp.halfEdge);
@@ -217,16 +220,15 @@ public class Voronoi {
 		Vector start = intersections[0];
 
 		// compute radius
-		double dx = b.cell.site.x - start.x;
-		double dy = b.cell.site.y - start.y;
+		double dx = bP.x - start.x;
+		double dy = bP.y - start.y;
 		double d = Math.sqrt((dx*dx) +(dy*dy));
 		if(start.y - d > sweepY) return; // must be after sweep line, new event in y
 
 		Vector ep = new Vector(start.x, start.y - d);
 
 		// add circle event
-		Event e = new Event(ep, Event.Type.CIRCLE_EVENT);
-		e.arc = b;
+		CircleEvent e = new CircleEvent(ep, b);
 		b.event = e;
 		events.add(e);
 	}

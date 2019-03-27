@@ -1,42 +1,14 @@
 package blchatel.polygonmap.fortune;
 
+
 import blchatel.polygonmap.geometry2d.Vector;
 
 /**
- * Event implementation.
- * Status object which is mutable and not really protected
- * An event is either a site or circle event for the sweep line to process
+ * Event interface. Should be represented by SITE_EVENT and CIRCLE_EVENT
  */
-public class Event {
+public interface Event {
 
-    /** Type of event */
-	public enum Type{
-		SITE_EVENT, CIRCLE_EVENT
-	}
+    /** @return (Vector): the point of interest of the event. Either the site for (SITE_EVENT) or the bottom most circle point for CIRCLE_EVENT*/
+    Vector getP();
 
-	/// This of this event
-    final Type type;
-	/// Linked point of interest
-	final Vector pi;
-	/// Concerned arc if circle event
-	BeachLine.Arc arc;
-
-    /**
-     * Default Event Constructor
-     * @param pi (Vector): event point of interest: either site (SITE_EVENT) or bottom most circle point (CIRCLE_EVENT)
-     * @param type (Type): type of the event
-     */
-	Event (Vector pi, Type type) {
-		this.pi = pi;
-		this.type = type;
-		arc = null;
-	}
-
-    @Override
-    public String toString() {
-        return "Event{" +
-                "pi=" + pi +
-                ", type=" + type +
-                '}';
-    }
 }

@@ -116,8 +116,8 @@ public class BeachLine {
         Arc right = bp.getRightArc();
 
         // Get corresponding point sites
-        Vector l = left.cell.site;
-        Vector r = right.cell.site;
+        Vector l = left.cell.getP();
+        Vector r = right.cell.getP();
 
         double dp = 2*(l.y - sweepY);
         double a1 = 1/dp;
@@ -168,11 +168,14 @@ public class BeachLine {
      */
     Arc[] split(Arc alpha, VoronoiCell cell){
 
+        Vector alphaP = alpha.cell.getP();
+        Vector cellP = cell.getP();
+
         // - Store the tuple <pj, pi> and <pi, pj> representing the new breakpoints at the two new internal nodes.
         // - Create new half-edge records in the Voronoi diagram structure for the edge separating V(pi) and V(pj),
         //   which will be traced out by the two new breakpoints.
-        Vector start = new Vector(cell.site.x, getY(alpha.cell.site, cell.site.x, cell.site.y));
-        Vector alphaPi = cell.site.subtract(alpha.cell.site);
+        Vector start = new Vector(cellP.x, getY(alphaP, cellP.x, cellP.y));
+        Vector alphaPi = cellP.subtract(alphaP);
 
         HalfEdge el = new HalfEdge(start, new Vector(alphaPi.y, -alphaPi.x));
         HalfEdge er = new HalfEdge(start, new Vector(-alphaPi.y, alphaPi.x));

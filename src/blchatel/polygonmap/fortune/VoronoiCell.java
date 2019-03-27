@@ -8,11 +8,12 @@ import java.util.List;
 
 
 /**
- * TODO not implemented yet
+ * Implementation of the SITE_EVENT
+ * @see Event
  */
-public class VoronoiCell {
+public class VoronoiCell implements Event{
 
-    final Vector site;
+    private final Vector site;
     private final List<Vector> vertices;
 
     VoronoiCell(Vector site){
@@ -22,5 +23,13 @@ public class VoronoiCell {
 
     void addVertex(Vector v){
         vertices.add(v);
+    }
+
+
+    /// VoronoiCell implements Event
+
+    @Override
+    public Vector getP() {
+        return site;
     }
 }
