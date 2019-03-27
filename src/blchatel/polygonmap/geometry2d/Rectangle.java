@@ -17,6 +17,7 @@ public final class Rectangle extends Shape{
 
     // xy-coordinate, width, height
     public final double x, y, w, h;
+    public final Vector bl, br, tl, tr;
 
     /**
      * Default Rectangle Constructor
@@ -30,6 +31,10 @@ public final class Rectangle extends Shape{
         this.y = y;
         this.w = w;
         this.h = h;
+        this.bl = new Vector(x, y);
+        this.br = new Vector(x+w, y);
+        this.tl = new Vector(x, y+h);
+        this.tr = new Vector(x+w, y+h);
     }
 
     /**
@@ -41,6 +46,10 @@ public final class Rectangle extends Shape{
         y = r.y;
         w = r.w;
         h = r.h;
+        this.bl = r.bl;
+        this.br = r.br;
+        this.tl = r.tl;
+        this.tr = r.tr;
     }
 
     /**
