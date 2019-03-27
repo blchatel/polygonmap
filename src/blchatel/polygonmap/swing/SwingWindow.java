@@ -33,6 +33,7 @@ public class SwingWindow {
         frame = new JFrame(title);
         frame.add(buildContent());
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setResizable(false);
 
         // Menu bar
         JMenuBar mb = new JMenuBar();
@@ -57,14 +58,6 @@ public class SwingWindow {
 
         optionPanel = new SwingOptionPanel();
         component.add(optionPanel, BorderLayout.EAST);
-
-        /*
-        SwingUtilities.invokeLater(() -> component.addComponentListener(new ComponentAdapter(){
-            public void componentResized(ComponentEvent evt) {
-                refresh();
-            }
-        }));
-        */
 
         return component;
     }
