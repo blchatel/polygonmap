@@ -68,10 +68,6 @@ public class VoronoiCell extends Shape implements Event{
 
         points = connectCell();
 
-        // Check validity
-        if (points.size() < 3)
-            throw new IllegalArgumentException("At least three points are required");
-
         // The cell can be decomposed into point.size() triangle
         area = 0;
         perimeter = 0;
