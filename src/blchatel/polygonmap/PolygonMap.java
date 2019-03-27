@@ -1,10 +1,12 @@
 package blchatel.polygonmap;
 
 import blchatel.polygonmap.fortune.Voronoi;
+import blchatel.polygonmap.fortune.VoronoiCell;
 import blchatel.polygonmap.geometry2d.*;
 import blchatel.polygonmap.geometry2d.Rectangle;
 import blchatel.polygonmap.io.Config;
 import blchatel.polygonmap.io.FileSystem;
+import blchatel.polygonmap.swing.DrawSupport;
 import blchatel.polygonmap.swing.SwingShape;
 import blchatel.polygonmap.swing.SwingWindow;
 
@@ -20,7 +22,7 @@ public class PolygonMap {
     // The configuration
     private final Config c;
     // The UI window
-    private final SwingWindow window;
+    private final DrawSupport support;
 
 
     private PolygonMap(String configName){
@@ -30,35 +32,42 @@ public class PolygonMap {
 
         int windowW = c.get("WINDOW", "width", int.class);
         int windowH = c.get("WINDOW", "height", int.class);
-        window = new SwingWindow("Polygon Map Generator", windowW, windowH);
+        SwingWindow window = new SwingWindow("Polygon Map Generator", windowW, windowH);
+        support = window.getSupport();
+    }
 
+    private void start(){
+
+        // Init the random generator
         Random r = new Random(c.get("RANDOM", "seed1", int.class));
 
+        // Init the bounding box
         int width = c.get("MAP", "width", int.class);
         int height = c.get("MAP", "height", int.class);
         Rectangle rec = new Rectangle(0, 0, width, height);
 
+        // Generate the point site sample
         int samples = c.get("MAP", "samples", int.class);
         Set<Vector> points = new HashSet<>();
         for(int i = 0; i < samples; i++){
             Vector v = rec.sample(r);
             points.add(v);
-            //window.registerShape(new SwingShape(v.toPath(), Color.BLACK));
         }
 
-        Voronoi diagram = new Voronoi(points, rec);
-
-        for(Edge edge : diagram.edges()){
-            window.registerShape(new SwingShape(edge.toPath(), null, Color.BLACK, 1, 1, 0));
+        // Generate the diagram with Lloyd's relaxation
+        int its = c.get("MAP", "lloydIt", int.class);
+        for(int i = 0; i < its; i++){
+            Voronoi diagram = new Voronoi(points, rec);
+            diagram.draw(support);
+            points = diagram.cellCentroids();
         }
-        window.registerShape(new SwingShape(rec.toPath(), null, Color.BLACK, 1, 1, 0));
-        window.refresh();
+
+        for(Vector v : points){
+            support.registerShape(new SwingShape(v.toPath(), Color.BLUE, 10));
+        }
+        support.refresh();
+
     }
-
-    private void start(){
-
-    }
-
 
     ////////////////////////////////////////////////
     ///
