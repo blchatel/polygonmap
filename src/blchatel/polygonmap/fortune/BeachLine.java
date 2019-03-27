@@ -271,8 +271,12 @@ public class BeachLine {
 
             Vector[] intersections = bp.halfEdge.intersectWith(box);
             if(intersections.length > 0){
-                if(box.contains(bp.halfEdge.head))
-                    edges.add(new Edge(bp.halfEdge.head, intersections[0]));
+                if(box.contains(bp.halfEdge.head)) {
+                    Edge e = new Edge(bp.halfEdge.head, intersections[0]);
+                    edges.add(e);
+                    bp.right.addEdge(e);
+                    bp.left.addEdge(e);
+                }
             }
             // Recursive call
             bp.childLeft.endEdges(edges);
@@ -284,13 +288,21 @@ public class BeachLine {
     public class BreakPoint extends Node{
 
         /// Half-edge linked to the node
-        HalfEdge halfEdge;
+        private HalfEdge halfEdge;
         VoronoiCell left, right;
 
         void set(HalfEdge halfEdge, VoronoiCell left, VoronoiCell right){
             this.halfEdge = halfEdge;
             this.left = left;
             this.right = right;
+        }
+
+        Vector halfEdgeHead(){
+            return halfEdge.head;
+        }
+
+        Vector[] intersectWith(BreakPoint other){
+            return halfEdge.intersectWith(other.halfEdge);
         }
 
 

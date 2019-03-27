@@ -4,8 +4,13 @@ import blchatel.polygonmap.geometry2d.Edge;
 import blchatel.polygonmap.geometry2d.HalfEdge;
 import blchatel.polygonmap.geometry2d.Rectangle;
 import blchatel.polygonmap.geometry2d.Vector;
+import blchatel.polygonmap.swing.DrawSupport;
+import blchatel.polygonmap.swing.Drawable;
+import blchatel.polygonmap.swing.SwingShape;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 
 /**
@@ -15,8 +20,10 @@ import java.util.*;
  * @see Event
  * @see BeachLine
  * @see VoronoiCell
+ * @see Drawable
+ * @see DrawSupport
  */
-public class Voronoi {
+public class Voronoi implements Drawable{
 
 	/// Box of voronoi
 	private final Rectangle box;
@@ -43,6 +50,7 @@ public class Voronoi {
 		voronoiDiagram(sites);
 	}
 
+
     /** Event comparator sorting event by decreasing y*/
 	private static final Comparator<Event> priority = (event1, event2) -> {
 	    Vector p1 = event1.getP();
@@ -60,6 +68,9 @@ public class Voronoi {
      */
     private void voronoiDiagram(Set<Vector> sites) {
 
+        VoronoiCell tl=null, tr=null, bl=null, br = null;
+        double tlBestD = Double.MAX_VALUE, trBestD = Double.MAX_VALUE, blBestD = Double.MAX_VALUE, brBestD = Double.MAX_VALUE;
+
         // Initialize the events queue with all site events, initialize an empty Beach Line status
         // structure and an empty doubly-connected edges list.
         events = new PriorityQueue<>(priority);
@@ -68,7 +79,38 @@ public class Voronoi {
             VoronoiCell voronoiCell = new VoronoiCell(p);
             events.add(voronoiCell);
             cells.add(voronoiCell);
+
+            // Deal with the four corner that need to be added to correct cell
+            double tlD = p.subtract(box.tl).getSqrLength();
+            double trD = p.subtract(box.tr).getSqrLength();
+            double blD = p.subtract(box.bl).getSqrLength();
+            double brD = p.subtract(box.br).getSqrLength();
+
+            if(br == null){
+                tl = voronoiCell; tlBestD = tlD;
+                tr = voronoiCell; trBestD = trD;
+                bl = voronoiCell; blBestD = blD;
+                br = voronoiCell; brBestD = brD;
+            }
+            else if(tlD < tlBestD){
+                tl = voronoiCell; tlBestD = tlD;
+            }
+            else if(trD < trBestD){
+                tr = voronoiCell; trBestD = trD;
+            }
+            else if(blD < blBestD){
+                bl = voronoiCell; blBestD = blD;
+            }
+            else if(brD < brBestD){
+                br = voronoiCell; brBestD = brD;
+            }
         }
+        assert tl != null;
+        tl.addCorner(new Vector(box.x, box.y+box.h));
+        tr.addCorner(new Vector(box.x+box.w, box.y+box.h));
+        bl.addCorner(new Vector(box.x, box.y));
+        br.addCorner(new Vector(box.x+box.w, box.y));
+
         beachLine = null;
         edges = new ArrayList<>();
 
@@ -135,6 +177,7 @@ public class Voronoi {
 		checkCircleEvent(arcs[1]);
 	}
 
+
     /**
      * Handle circle event: leaf gamma and corresponding arc (alpha) is drop out
      * @param event (CircleEvent): the circle event
@@ -163,13 +206,22 @@ public class Voronoi {
 
         // - Add the center of the circle causing the event as a vertex record to the doubly-connected edge list.
         Vector center = new Vector(cT.x, beachLine.getY(gamma.cell.getP(), cT.x, sweepY));
-        Edge el = boxedEdge(xl.halfEdge.head, center);
-        Edge er = boxedEdge(xr.halfEdge.head, center);
+        //System.out.println(predecessor.cell.getP()+", "+gamma.cell.getP()+", "+successor.cell.getP());
 
-        if(el != null)
+        Edge el = boxedEdge(xl.halfEdgeHead(), center);
+        Edge er = boxedEdge(xr.halfEdgeHead(), center);
+
+        if(el != null) {
             edges.add(el);
-        if(er != null)
+            xl.left.addEdge(el);
+            xl.right.addEdge(el);
+        }
+        if(er != null) {
             edges.add(er);
+            xr.left.addEdge(er);
+            xr.right.addEdge(er);
+        }
+
 
         // - Create two half-edge records corresponding to the new breakpoint of the beach line.
         //   Gamma is bounded by two break points: xl and xr
@@ -197,6 +249,7 @@ public class Voronoi {
         checkCircleEvent(successor);
 	}
 
+
     /**
      * Detects and adds circle event if sites a, b, c lie on the same circle
      * @param b (Arc): b-arc between a and c
@@ -220,7 +273,7 @@ public class Voronoi {
 		if(ccw(a.cell.getP(), bP, c.cell.getP()) > 0) return;
 		
 		// halfEdges will intersect to form a vertex for a circle event
-		Vector[] intersections = lbp.halfEdge.intersectWith(rbp.halfEdge);
+		Vector[] intersections = lbp.intersectWith(rbp);
         if(intersections.length == 0 ) return;
 		Vector start = intersections[0];
 
@@ -238,6 +291,7 @@ public class Voronoi {
 		events.add(e);
 	}
 
+
     /**
      * Determine if three points make a counter-clockwise turn
      * @param a (Vector): first point
@@ -251,6 +305,7 @@ public class Voronoi {
 	    if(Math.abs(det)<Vector.EPSILON) return 0;
 	    return det;
     }
+
 
     /**
      * Compute the boxed version of an edge (i.e the sub-edge that fit the box)
@@ -274,15 +329,53 @@ public class Voronoi {
         HalfEdge half = new HalfEdge(inside, outside.subtract(inside));
         Vector[] intersections = half.intersectWith(box);
 
+        if(intersections.length == 0){
+
+            System.out.println(head +"->"+ box.contains(head));
+            System.out.println(tail +"->"+ box.contains(tail));
+            System.out.println(half);
+
+        }
+
         return new Edge(inside, intersections[0]);
     }
 
 
     /**
-     * Edge getter
-     * @return (List of Edge): the computed edges
+     * Getter for the cell centroids
+     * @return (Set of Vector): the centroids (one for each cell)
      */
-	public List<Edge> edges() {
-		return edges;
-	}
+    public Set<Vector> cellCentroids() {
+
+        Set<Vector> centroids = new HashSet<>(cells.size());
+
+        for(VoronoiCell cell : cells)
+            centroids.add(cell.center());
+
+        return centroids;
+    }
+
+
+    /// Voronoi implements Drawable
+
+    @Override
+    public void draw(DrawSupport support) {
+
+        System.out.println("Draw Diagram");
+
+        support.clearItems();
+
+        for(VoronoiCell cell : cells){
+            support.registerShape(new SwingShape(cell.toPath(), Color.GREEN, 0));
+            support.registerShape(new SwingShape(cell.getP().toPath(), Color.BLACK, 10));
+        }
+
+        for(Edge edge : edges){
+            support.registerShape(new SwingShape(edge.toPath(), null, Color.BLACK, 1, 1, 10));
+        }
+
+        support.registerShape(new SwingShape(box.toPath(), null, Color.BLACK, 1, 1, 20));
+
+        support.refresh();
+    }
 }

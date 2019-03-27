@@ -13,7 +13,7 @@ public class CircleEvent implements Event{
     /// Linked point of interest
     private final Vector p;
     /// Concerned arc if circle event
-    BeachLine.Arc arc;
+    final BeachLine.Arc arc;
 
     /**
      * Default CircleEvent Constructor
