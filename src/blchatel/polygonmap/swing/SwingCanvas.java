@@ -16,7 +16,7 @@ import java.util.List;
  * Represent a canvas where we can draw items (SwingShape)
  * @see SwingShape
  */
-public class SwingCanvas extends java.awt.Canvas{
+public class SwingCanvas extends java.awt.Canvas implements DrawSupport{
 
     /// List of item to draw
     private final List<SwingShape> items;
@@ -44,20 +44,20 @@ public class SwingCanvas extends java.awt.Canvas{
         viewCenter = new Vector(500, 500);
     }
 
-    /**
-     * Register a Shape for display on canvas
-     * @param s (SwingShape): swing version of the initial shape to draw
-     */
+
+    /// SwingCanvas implements draw support
+
+    @Override
     public void registerShape(SwingShape s){
         items.add(s);
     }
 
-    /** Remove all items from the drawing list */
+    @Override
     public void clearItems(){
         items.clear();
     }
 
-    /** Refresh the canvas */
+    @Override
     public void refresh(){
 
         // get dimension

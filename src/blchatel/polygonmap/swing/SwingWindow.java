@@ -18,7 +18,7 @@ public class SwingWindow {
     /// The option panel (EAST)
     private SwingOptionPanel optionPanel;
     /// The canvas (CENTER)
-    private SwingCanvas canvas;
+    private DrawSupport canvas;
 
 
     /**
@@ -53,26 +53,24 @@ public class SwingWindow {
         component.setLayout(new BorderLayout());
 
         canvas = new SwingCanvas();
-        component.add(canvas, BorderLayout.CENTER);
+        component.add((SwingCanvas)canvas, BorderLayout.CENTER);
 
         optionPanel = new SwingOptionPanel();
         component.add(optionPanel, BorderLayout.EAST);
 
+        /*
         SwingUtilities.invokeLater(() -> component.addComponentListener(new ComponentAdapter(){
             public void componentResized(ComponentEvent evt) {
                 refresh();
             }
         }));
+        */
 
         return component;
     }
 
-    /**
-     * Register a Shape for display on canvas
-     * @param s (SwingShape): swing version of the initial shape to draw
-     */
-    public void registerShape(SwingShape s){
-        canvas.registerShape(s);
+    public DrawSupport getSupport() {
+        return canvas;
     }
 
     /** Refresh all the component when called */
