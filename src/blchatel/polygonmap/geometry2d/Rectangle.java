@@ -112,7 +112,7 @@ public final class Rectangle extends Shape{
     }
 
     @Override
-    Vector[] acceptIntersectWith(ShapeIntersection intersection) {
+    protected Vector[] acceptIntersectWith(ShapeIntersection intersection) {
         return intersection.intersectWith(this);
     }
 

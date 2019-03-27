@@ -208,7 +208,7 @@ public final class Vector extends Shape implements Serializable{
     }
 
     @Override
-    Vector[] acceptIntersectWith(ShapeIntersection intersection) {
+    protected Vector[] acceptIntersectWith(ShapeIntersection intersection) {
         return intersection.intersectWith(this);
     }
 }

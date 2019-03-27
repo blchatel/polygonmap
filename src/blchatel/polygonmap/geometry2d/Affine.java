@@ -89,7 +89,7 @@ public final class Affine extends Function {
     }
 
     @Override
-    Vector[] acceptIntersectWith(ShapeIntersection intersection) {
+    protected Vector[] acceptIntersectWith(ShapeIntersection intersection) {
         return intersection.intersectWith(this);
     }
 

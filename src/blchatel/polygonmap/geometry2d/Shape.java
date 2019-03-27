@@ -40,7 +40,7 @@ public abstract class Shape {
      * @param intersection (Intersection): the intersection handler
      * @return (Vector[]): the intersection points if exists, empty array otherwise
      */
-    abstract Vector[] acceptIntersectWith(ShapeIntersection intersection);
+    protected abstract Vector[] acceptIntersectWith(ShapeIntersection intersection);
 
     /**
      * Indicate if the given vector (x, y) is contained into this shape

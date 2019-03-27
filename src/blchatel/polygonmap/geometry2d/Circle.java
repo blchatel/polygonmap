@@ -105,7 +105,7 @@ public final class Circle extends Shape{
     }
 
     @Override
-    Vector[] acceptIntersectWith(ShapeIntersection intersection) {
+    protected Vector[] acceptIntersectWith(ShapeIntersection intersection) {
         return intersection.intersectWith(this);
     }
 }

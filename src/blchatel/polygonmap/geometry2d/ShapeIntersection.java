@@ -1,5 +1,7 @@
 package blchatel.polygonmap.geometry2d;
 
+import blchatel.polygonmap.fortune.Voronoi;
+import blchatel.polygonmap.fortune.VoronoiCell;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
@@ -17,6 +19,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  * @see HalfEdge
  * @see Rectangle
  * @see Circle
+ * @see Polygon
  * Add any new shape here
  */
 public interface ShapeIntersection {
@@ -112,4 +115,13 @@ public interface ShapeIntersection {
         throw new NotImplementedException();
     }
 
+    /**
+     * Find the intersection between this Shape and the given VoronoiCell
+     * @param cell (VoronoiCell): the voronoiCell to intersectWith
+     * @return (Vector[]): intersection if any or an empty array
+     */
+    default Vector[] intersectWith(VoronoiCell cell){
+        System.out.println("You probably miss the declaration of a function type here or simply implemented the other way");
+        throw new NotImplementedException();
+    }
 }
