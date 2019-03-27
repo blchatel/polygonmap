@@ -23,10 +23,10 @@ public class BeachLine {
     /**
      * BeachLine Default Constructor
      * @param box (Rectangle):
-     * @param rootSite (Vector):
+     * @param rootCell (VoronoiCell):
      */
-    BeachLine(Rectangle box, Vector rootSite){
-        this.root = new Arc(rootSite);
+    BeachLine(Rectangle box, VoronoiCell rootCell){
+        this.root = new Arc(rootCell);
         this.box = box;
     }
 
@@ -116,8 +116,8 @@ public class BeachLine {
         Arc right = bp.getRightArc();
 
         // Get corresponding point sites
-        Vector l = left.site;
-        Vector r = right.site;
+        Vector l = left.cell.site;
+        Vector r = right.cell.site;
 
         double dp = 2*(l.y - sweepY);
         double a1 = 1/dp;
@@ -163,31 +163,31 @@ public class BeachLine {
      * Split the arc alpha into three new leaf introduced by the new point site
      * Note: we replace alpha by a new sub tree structure
      * @param alpha (Arc): the arc to split
-     * @param pi (Vector): the new point site
+     * @param cell (VoronoiCell): the new point site cell
      * @return (Arc[]): new Arc left [0] and new Arc right [1] that can induce circle events
      */
-    Arc[] split(Arc alpha, Vector pi){
+    Arc[] split(Arc alpha, VoronoiCell cell){
 
         // - Store the tuple <pj, pi> and <pi, pj> representing the new breakpoints at the two new internal nodes.
         // - Create new half-edge records in the Voronoi diagram structure for the edge separating V(pi) and V(pj),
         //   which will be traced out by the two new breakpoints.
-        Vector start = new Vector(pi.x, getY(alpha.site, pi.x, pi.y));
-        Vector alphaPi = pi.subtract(alpha.site);
+        Vector start = new Vector(cell.site.x, getY(alpha.cell.site, cell.site.x, cell.site.y));
+        Vector alphaPi = cell.site.subtract(alpha.cell.site);
 
         HalfEdge el = new HalfEdge(start, new Vector(alphaPi.y, -alphaPi.x));
         HalfEdge er = new HalfEdge(start, new Vector(-alphaPi.y, alphaPi.x));
 
         BreakPoint bp = new BreakPoint();
         BreakPoint bpR = new BreakPoint();
-        bp.halfEdge = el;
-        bpR.halfEdge = er;
+        bp.set(el, alpha.cell, cell);
+        bpR.set(er, cell, alpha.cell);
 
         // Replace the leaf of the beach line that represents alpha with a subtree having three leaves.
         // - The middle leaf stores the new site pi
         // - The other two leaves store the site pj that was originally stored with alpha.
-        Arc aL = new Arc(alpha.site);
-        Arc aM = new Arc(pi);
-        Arc aR = new Arc(alpha.site);
+        Arc aL = new Arc(alpha.cell);
+        Arc aM = new Arc(cell);
+        Arc aR = new Arc(alpha.cell);
 
         bp.setLeftChild(aL);
         bp.setRightChild(bpR);
@@ -282,6 +282,14 @@ public class BeachLine {
 
         /// Half-edge linked to the node
         HalfEdge halfEdge;
+        VoronoiCell left, right;
+
+        void set(HalfEdge halfEdge, VoronoiCell left, VoronoiCell right){
+            this.halfEdge = halfEdge;
+            this.left = left;
+            this.right = right;
+        }
+
 
         /**
          * Given a break point, it compute the closest arc to the left
@@ -316,15 +324,15 @@ public class BeachLine {
     /** Arc Leaf of the tree, defined with the point of interest and the linked event if CIRCLE_EVENT*/
     public class Arc extends Node {
 
-        final Vector site;
+        final VoronoiCell cell;
         Event event;
 
         /**
          * Default Arc Constructor
-         * @param site (Vector): the point of interest linked to this leaf.
+         * @param cell (VoronoiCell): the point of interest linked to this leaf.
          */
-        Arc(Vector site){
-            this.site = site;
+        Arc(VoronoiCell cell){
+            this.cell = cell;
         }
 
         /**
@@ -363,7 +371,7 @@ public class BeachLine {
         @Override
         public String toString() {
             return "Arc{" +
-                    "site=" + site +
+                    "cell=" + cell +
                     ", event=" + event +
                     '}';
         }
