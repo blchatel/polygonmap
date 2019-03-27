@@ -20,6 +20,8 @@ public class Voronoi {
 
 	/// Box of voronoi
 	private final Rectangle box;
+    /// Cells of the diagram
+    private Set<VoronoiCell> cells;
 	/// Edges of the diagram
 	private List<Edge> edges;
 	/// Priority queue representing the sweep line
@@ -61,8 +63,11 @@ public class Voronoi {
         // Initialize the events queue with all site events, initialize an empty Beach Line status
         // structure and an empty doubly-connected edges list.
         events = new PriorityQueue<>(priority);
+        cells = new HashSet<>(sites.size());
         for(Vector p : sites) {
-            events.add(new VoronoiCell(p));
+            VoronoiCell voronoiCell = new VoronoiCell(p);
+            events.add(voronoiCell);
+            cells.add(voronoiCell);
         }
         beachLine = null;
         edges = new ArrayList<>();
