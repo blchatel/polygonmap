@@ -367,7 +367,7 @@ public class Voronoi implements Drawable{
 
         for(VoronoiCell cell : cells){
             support.registerShape(new SwingShape(cell.toPath(), Color.GREEN, 0));
-            support.registerShape(new SwingShape(cell.getP().toPath(), Color.BLACK, 10));
+           // support.registerShape(new SwingShape(cell.getP().toPath(), Color.BLACK, 10));
         }
 
         for(Edge edge : edges){

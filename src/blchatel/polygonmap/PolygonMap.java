@@ -62,10 +62,12 @@ public class PolygonMap {
             points = diagram.cellCentroids();
         }
 
+        /*
         for(Vector v : points){
             support.registerShape(new SwingShape(v.toPath(), Color.BLUE, 10));
         }
         support.refresh();
+        */
 
     }
 
